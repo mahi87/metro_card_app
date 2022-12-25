@@ -1,5 +1,5 @@
 from app import app, db
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class MetroCard(db.Model):
@@ -10,3 +10,6 @@ class MetroCard(db.Model):
 
     def set_pin(self, pin):
         self.pin_hash = generate_password_hash(pin)
+
+    def check_pin(self, pin):
+        return check_password_hash(self.pin_hash, pin)
