@@ -1,10 +1,18 @@
-from app import app
-from flask import jsonify
+from app import app, db
+from flask import jsonify, request
+from .models import MetroCard
 
 
 @app.route("/v1/metro_card", methods=["POST"])
 def create_metro_card():
-    return jsonify({"message": "creating metro card"})
+    content = request.json
+    if "name" not in content or "pin" not in content:
+        return jsonify({"message": "missing name/pin args"}), 400
+    metro_card = MetroCard(name=content["name"])
+    metro_card.set_pin(content["pin"])
+    db.session.add(metro_card)
+    db.session.commit()
+    return jsonify({"id": metro_card.id}), 201
 
 
 @app.route("/v1/metro_card", methods=["GET"])
