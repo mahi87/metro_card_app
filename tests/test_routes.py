@@ -86,3 +86,53 @@ class GetMetroCard(unittest.TestCase):
             response = client.get("/v1/metro_card/3")
 
             self.assertEqual(response.status_code, 404)
+
+
+class UpdateMetroCard(unittest.TestCase):
+    def setUp(self):
+        app.testing = True
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+        m1 = MetroCard(name="Mahima")
+        m1.set_pin("1234")
+
+        db.session.add(m1)
+        db.session.commit()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_should_update_details_when_metro_card_exist(self):
+        with app.test_client() as client:
+            response = client.put(
+                "/v1/metro_card/1",
+                json={"name": "Mahima", "balance": 10},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json, {"name": "Mahima", "id": 1, "balance": 10})
+
+    def test_should_return_404_if_card_does_not_exist(self):
+        with app.test_client() as client:
+            response = client.put(
+                "/v1/metro_card/2", json={"name": "Mahima", "balance": 10}
+            )
+            self.assertEqual(response.status_code, 404)
+
+    def test_should_return_error_when_balance_is_absent(self):
+        with app.test_client() as client:
+            response = client.put("/v1/metro_card/1", json={"name": "Mahima"})
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(
+                response.json, {"message": "Missing required args in request"}
+            )
+
+    def test_should_return_error_when_name_is_absent(self):
+        with app.test_client() as client:
+            response = client.put("/v1/metro_card/1", json={"balance": 10})
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(
+                response.json, {"message": "Missing required args in request"}
+            )

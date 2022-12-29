@@ -33,7 +33,16 @@ def get_metro_card(id):
 
 @app.route("/v1/metro_card/<id>", methods=["PUT"])
 def update_metro_card(id):
-    return jsonify({"message": "updating card details"})
+    content = request.json
+    if "name" not in content or "balance" not in content:
+        return jsonify({"message": "Missing required args in request"}), 400
+    metro_card = MetroCard.query.get_or_404(id)
+    metro_card.balance = content["balance"]
+    metro_card.name = content["name"]
+    db.session.add(metro_card)
+    db.session.commit()
+    res = {"name": metro_card.name, "id": metro_card.id, "balance": metro_card.balance}
+    return jsonify(res)
 
 
 @app.route("/v1/metro_card/<id>", methods=["DELETE"])
