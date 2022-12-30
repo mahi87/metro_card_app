@@ -62,3 +62,20 @@ def create_station():
     db.session.add(s)
     db.session.commit()
     return jsonify({"id": s.id}), 201
+
+
+@app.route("/v1/station", methods=["GET"])
+def get_all_station():
+    s = Station.query.order_by("id").all()
+    res = []
+    for i in s:
+        res.append(
+            {
+                "name": i.name,
+                "id": i.id,
+                "total_collection": i.total_collection,
+                "total_discount": i.total_discount,
+            }
+        )
+
+    return jsonify(res)
