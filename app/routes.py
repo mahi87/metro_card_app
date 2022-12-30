@@ -2,6 +2,7 @@ from app import app, db
 from flask import jsonify, request, abort
 from .models import MetroCard, Station, Journey
 from datetime import datetime
+from .tasks import update_station_details
 
 
 @app.route("/v1/metro_card", methods=["POST"])
@@ -128,5 +129,9 @@ def create_journey():
     db.session.add(journey)
     db.session.add(metro_card)
     db.session.commit()
+
+    update_station_details.delay(
+        content["metro_card_id"], content["from_station_id"], charges
+    )
 
     return jsonify({"id": journey.id}), 201

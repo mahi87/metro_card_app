@@ -9,3 +9,8 @@ class Config(object):
         "DATABASE_URL"
     ) or "sqlite:///" + os.path.join(basedir, "app.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    CELERY_CONFIG = {
+        "broker_url": "redis://localhost:6379",
+        "result_backend": "redis://localhost:6379",
+    }
