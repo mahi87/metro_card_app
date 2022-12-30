@@ -1,5 +1,6 @@
-from app import app, db
+from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 
 class MetroCard(db.Model):
@@ -14,6 +15,18 @@ class MetroCard(db.Model):
 
     def check_pin(self, pin):
         return check_password_hash(self.pin_hash, pin)
+
+    def passenger_type(self):
+        if self.dob is None:
+            return "UNKNOWN"
+        age_delta = datetime.now() - self.dob
+        age = (age_delta.days) // 365
+        if 0 <= age <= 18:
+            return "KID"
+        elif 18 < age <= 50:
+            return "ADULT"
+        else:
+            return "SENIOR_CITIZEN"
 
 
 class Station(db.Model):

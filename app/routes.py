@@ -1,6 +1,7 @@
 from app import app, db
 from flask import jsonify, request, abort
 from .models import MetroCard, Station
+from datetime import datetime
 
 
 @app.route("/v1/metro_card", methods=["POST"])
@@ -8,11 +9,16 @@ def create_metro_card():
     content = request.json
     if "name" not in content or "pin" not in content:
         abort(400, description="missing name/pin args")
-    metro_card = MetroCard(name=content["name"])
+    metro_card = MetroCard(
+        name=content["name"], dob=datetime.fromisoformat(content["dob"])
+    )
     metro_card.set_pin(content["pin"])
     db.session.add(metro_card)
     db.session.commit()
-    return jsonify({"id": metro_card.id}), 201
+    return (
+        jsonify({"id": metro_card.id, "passenger_type": metro_card.passenger_type()}),
+        201,
+    )
 
 
 @app.route("/v1/metro_card", methods=["GET"])
@@ -27,7 +33,12 @@ def get_all_metro_cards():
 @app.route("/v1/metro_card/<id>", methods=["GET"])
 def get_metro_card(id):
     metro_card = MetroCard.query.get_or_404(id)
-    res = {"id": metro_card.id, "name": metro_card.name, "balance": metro_card.balance}
+    res = {
+        "id": metro_card.id,
+        "name": metro_card.name,
+        "balance": metro_card.balance,
+        "passenger_type": metro_card.passenger_type(),
+    }
     return jsonify(res)
 
 
