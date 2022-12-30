@@ -79,3 +79,21 @@ def get_all_station():
         )
 
     return jsonify(res)
+
+
+@app.route("/v1/station/<id>", methods=["GET"])
+def get_station_by_id(id):
+    s = Station.query.get_or_404(id)
+    res = {
+        "name": s.name,
+        "id": s.id,
+        "total_collection": s.total_collection,
+        "total_discount": s.total_discount,
+        "passenger_summary": {
+            "adult": s.passenger_adult,
+            "kid": s.passenger_kid,
+            "senior_citizen": s.passenger_senior_citizen,
+        },
+    }
+
+    return jsonify(res)
