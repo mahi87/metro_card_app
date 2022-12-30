@@ -47,4 +47,7 @@ def update_metro_card(id):
 
 @app.route("/v1/metro_card/<id>", methods=["DELETE"])
 def delete_metro_card(id):
-    return jsonify({"message": "deleting card details"})
+    metro_card = MetroCard.query.get_or_404(id)
+    db.session.delete(metro_card)
+    db.session.commit()
+    return jsonify({"message": f"Metro card with id {id} has been deleted"})

@@ -136,3 +136,39 @@ class UpdateMetroCard(unittest.TestCase):
             self.assertEqual(
                 response.json, {"message": "Missing required args in request"}
             )
+
+
+class DeleteMetroCard(unittest.TestCase):
+    def setUp(self):
+        app.testing = True
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+        m1 = MetroCard(name="Mahima")
+        m1.set_pin("1234")
+
+        db.session.add(m1)
+        db.session.commit()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_should_return_valid_id_on_deleting(self):
+        with app.test_client() as client:
+            response = client.delete("/v1/metro_card/1")
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json, {"message": "Metro card with id 1 has been deleted"}
+            )
+
+    def test_should_check_if_id_has_been_deleted_from_the_db(self):
+        with app.test_client() as client:
+            response = client.delete("/v1/metro_card/1")
+
+            self.assertEqual(response.status_code, 200)
+            response2 = client.delete("/v1/metro_card/1")
+
+            self.assertEqual(response2.status_code, 404)
