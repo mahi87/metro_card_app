@@ -37,3 +37,10 @@ class Station(db.Model):
     passenger_adult = db.Column(db.Integer, default=0)
     passenger_kid = db.Column(db.Integer, default=0)
     passenger_senior_citizen = db.Column(db.Integer, default=0)
+
+
+class Journey(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    metro_card_id = db.Column(db.Integer, db.ForeignKey("metro_card.id"))
+    from_station_id = db.Column(db.Integer, db.ForeignKey("station.id"))
+    to_station_id = db.Column(db.Integer, db.ForeignKey("station.id"))
