@@ -16,6 +16,9 @@ class MetroCard(db.Model):
     def check_pin(self, pin):
         return check_password_hash(self.pin_hash, pin)
 
+    def deduct_balance(self, amount):
+        self.balance = self.balance - amount
+
     def passenger_type(self):
         if self.dob is None:
             return "UNKNOWN"
@@ -44,3 +47,8 @@ class Journey(db.Model):
     metro_card_id = db.Column(db.Integer, db.ForeignKey("metro_card.id"))
     from_station_id = db.Column(db.Integer, db.ForeignKey("station.id"))
     to_station_id = db.Column(db.Integer, db.ForeignKey("station.id"))
+
+    def charges(self):
+        charges = {"ADULT": 200, "KID": 50, "SENIOR_CITIZEN": 100, "UNKNOWN": 500}
+        metro_card = MetroCard.query.get(self.metro_card_id)
+        return charges[metro_card.passenger_type()]

@@ -1,6 +1,6 @@
 from app import app, db
 from flask import jsonify, request, abort
-from .models import MetroCard, Station
+from .models import MetroCard, Station, Journey
 from datetime import datetime
 
 
@@ -108,3 +108,25 @@ def get_station_by_id(id):
     }
 
     return jsonify(res)
+
+
+@app.route("/v1/journey", methods=["POST"])
+def create_journey():
+    content = request.json
+    journey = Journey(
+        metro_card_id=content["metro_card_id"],
+        from_station_id=content["from_station_id"],
+        to_station_id=content["to_station_id"],
+    )
+    charges = journey.charges()
+    metro_card = MetroCard.query.get(content["metro_card_id"])
+    if metro_card.balance < charges:
+        abort(400, description="Insufficient Balance, recharge please!")
+
+    metro_card.deduct_balance(charges)
+
+    db.session.add(journey)
+    db.session.add(metro_card)
+    db.session.commit()
+
+    return jsonify({"id": journey.id}), 201
