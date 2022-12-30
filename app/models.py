@@ -7,6 +7,7 @@ class MetroCard(db.Model):
     name = db.Column(db.String(50), nullable=False)
     balance = db.Column(db.Integer, default=0, nullable=False)
     pin_hash = db.Column(db.String(128), nullable=False)
+    dob = db.Column(db.DateTime)
 
     def set_pin(self, pin):
         self.pin_hash = generate_password_hash(pin)
